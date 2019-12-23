@@ -1,4 +1,5 @@
 import React from 'react';
+import { withAuthenticator } from "aws-amplify-react";
 
 const App: React.FC = () => {
   return (
@@ -8,4 +9,4 @@ const App: React.FC = () => {
   );
 }
 
-export default App;
+export default withAuthenticator(App);
