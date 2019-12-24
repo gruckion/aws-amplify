@@ -14,6 +14,13 @@ const App: React.FC = () => {
   const [note, setNote] = React.useState<string>();
   const [notes, setNotes] = React.useState<Note[]>([]);
 
+  React.useEffect(() => {
+    (async () => {
+      const result = await API.graphql(graphqlOperation(listNotes));
+      setNotes(result.data.listNotes.items);
+    })();
+  }, []);
+
   const handleChangeNote = (event: ChangeEvent<HTMLInputElement>) => setNote(event?.target?.value);
 
   const handleAddNote = async (event: FormEvent<HTMLFormElement>) => {
