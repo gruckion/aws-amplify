@@ -81,17 +81,18 @@ const App: React.FC = () => {
       <form
         className="mb3"
         onSubmit={editNoteId ? handleUpdateNote : handleAddNote}
-      >
+        >
         <input
           type="text"
           className="pa2 f4"
           placeholder="Write your note"
           onChange={handleChangeNote}
           value={note}
-        />
+          />
         <button
           className="pa2 f4"
           type="submit"
+          style={{ cursor: "pointer"}}
         >
           {editNoteId ? "Update Note" : "Add Note"}
         </button>
@@ -105,13 +106,15 @@ const App: React.FC = () => {
                 <li
                   className="list pa1 f3"
                   onClick={() => handleEditNoteMode(item)}
-                >
+                  style={{ cursor: "pointer"}}
+                  >
                   {item.note}
                 </li>
                 <button
                   className="bg-transparent bn f4"
                   type="button"
                   onClick={() => handleDeleteNote(item.id)}
+                  style={{ cursor: "pointer"}}
                 >
                   <span>&times;</span>
                 </button>
