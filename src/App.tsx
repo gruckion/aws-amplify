@@ -1,11 +1,11 @@
-import React, { FormEvent, ChangeEvent } from 'react';
+import React from 'react';
 import { withAuthenticator } from "aws-amplify-react";
 import { API, graphqlOperation } from "aws-amplify";
-import { createNote } from './graphql/mutations';
+import { createNote, deleteNote } from './graphql/mutations';
 import { listNotes } from './graphql/queries';
 
 interface Note {
-  id: number;
+  id: string;
   note: string;
 }
 
@@ -21,9 +21,9 @@ const App: React.FC = () => {
     })();
   }, []);
 
-  const handleChangeNote = (event: ChangeEvent<HTMLInputElement>) => setNote(event?.target?.value);
+  const handleChangeNote = (event: React.ChangeEvent<HTMLInputElement>) => setNote(event?.target?.value);
 
-  const handleAddNote = async (event: FormEvent<HTMLFormElement>) => {
+  const handleAddNote = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const input = { note };
@@ -32,6 +32,14 @@ const App: React.FC = () => {
     const newNote = result.data.createNote;
     setNotes([newNote, ...notes]);
     setNote("");
+  }
+
+  const handleDeleteNote = async (noteId: string) => {
+    const input = { id: noteId };
+    const result = await API.graphql(graphqlOperation(deleteNote, { input }));
+    const deletedNoteId = result.data.deleteNote.id;
+
+    setNotes([...notes.filter(note => note.id !== deletedNoteId)]);
   }
 
 
@@ -57,7 +65,7 @@ const App: React.FC = () => {
         </button>
         <div className="flex items-center justify-center">
           {
-            notes.map(item  => (
+            notes && notes.map(item  => (
               <div
                 key={item.id}
                 className="flex items-center"
@@ -68,6 +76,7 @@ const App: React.FC = () => {
                 <button
                   className="bg-transparent bn f4"
                   type="button"
+                  onClick={() => handleDeleteNote(item.id)}
                 >
                   <span>&times;</span>
                 </button>
