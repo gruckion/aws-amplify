@@ -3,8 +3,10 @@ import { withAuthenticator } from "aws-amplify-react";
 import { API, graphqlOperation } from "aws-amplify";
 import { createNote, deleteNote, updateNote } from './graphql/mutations';
 import { listNotes } from './graphql/queries';
-import { mutation } from './graphql/hooks/useQuery';
+import { mutation, useSubscription } from './graphql/hooks/useQuery';
 import { CreateNoteInput, CreateNoteMutation, DeleteNoteMutation, DeleteNoteInput, UpdateNoteMutation, UpdateNoteInput } from './API';
+import { onCreateNote } from './graphql/subscriptions';
+import Observable from 'zen-observable';
 
 interface Note {
   id: string;
@@ -21,6 +23,29 @@ const App: React.FC = () => {
     (async () => {
       await getNotes();
     })();
+  }, []);
+
+  React.useEffect(() => {
+    let subscriptionListener!:  ZenObservable.Subscription;
+
+    const subscription = API.graphql(graphqlOperation(onCreateNote));
+    if(subscription instanceof Observable) {
+      subscriptionListener = subscription.subscribe({
+        next: noteData => {
+          const newNote = noteData.value.data.onCreateNote;
+          setNotes(prevNotes => {
+            if(prevNotes.findIndex(note => note.id === newNote.id) === -1) {
+              return [newNote, ...prevNotes];
+            }
+            return prevNotes;
+          });
+          console.log(newNote);
+        }
+      });
+    }
+    return () => {
+      subscriptionListener.unsubscribe();
+    }
   }, []);
 
   const getNotes = async () => {
@@ -41,8 +66,8 @@ const App: React.FC = () => {
     const data = await mutation<CreateNoteMutation, { input: CreateNoteInput }>(createNote, { input });
     if(data && data.createNote) {
       setNotes([data.createNote, ...notes]);
-      setNote("");
     }
+    setNote("");
   }
 
   const handleDeleteNote = async (noteId: string) => {
