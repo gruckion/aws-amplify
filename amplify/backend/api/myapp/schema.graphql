@@ -1,4 +1,6 @@
-type Note @model {
+# TODO (Stephen): Enable all parents to edit the task [{ allow: groups, groups: ["Parents"] }]
+
+type Note @model @auth(rules: [{ allow: owner }]) {
   id: ID!
   note: String!
 }

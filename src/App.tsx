@@ -3,7 +3,7 @@ import { withAuthenticator } from "aws-amplify-react";
 import { API, graphqlOperation } from "aws-amplify";
 import { createNote, deleteNote, updateNote } from './graphql/mutations';
 import { listNotes } from './graphql/queries';
-import { mutation } from './graphql/hooks/useQuery';
+import { mutation } from './hooks/useQuery';
 import { CreateNoteInput, CreateNoteMutation, DeleteNoteMutation, DeleteNoteInput, UpdateNoteMutation, UpdateNoteInput } from './API';
 import { onCreateNote, onDeleteNote, onUpdateNote } from './graphql/subscriptions';
 import Observable from 'zen-observable';

@@ -8,6 +8,7 @@ export const createNote = `mutation CreateNote(
   createNote(input: $input, condition: $condition) {
     id
     note
+    owner
   }
 }
 `;
@@ -18,6 +19,7 @@ export const updateNote = `mutation UpdateNote(
   updateNote(input: $input, condition: $condition) {
     id
     note
+    owner
   }
 }
 `;
@@ -28,6 +30,7 @@ export const deleteNote = `mutation DeleteNote(
   deleteNote(input: $input, condition: $condition) {
     id
     note
+    owner
   }
 }
 `;

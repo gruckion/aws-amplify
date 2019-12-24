@@ -5,6 +5,7 @@ export const getNote = `query GetNote($id: ID!) {
   getNote(id: $id) {
     id
     note
+    owner
   }
 }
 `;
@@ -17,6 +18,7 @@ export const listNotes = `query ListNotes(
     items {
       id
       note
+      owner
     }
     nextToken
   }
