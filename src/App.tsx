@@ -5,7 +5,7 @@ import { createNote, deleteNote, updateNote } from './graphql/mutations';
 import { listNotes } from './graphql/queries';
 import { mutation } from './graphql/hooks/useQuery';
 import { CreateNoteInput, CreateNoteMutation, DeleteNoteMutation, DeleteNoteInput, UpdateNoteMutation, UpdateNoteInput } from './API';
-import { onCreateNote } from './graphql/subscriptions';
+import { onCreateNote, onDeleteNote } from './graphql/subscriptions';
 import Observable from 'zen-observable';
 
 interface Note {
@@ -26,7 +26,7 @@ const App: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    let subscriptionListener!:  ZenObservable.Subscription;
+    let subscriptionListener!: ZenObservable.Subscription;
     const subscription = API.graphql(graphqlOperation(onCreateNote));
     if(subscription instanceof Observable) {
       subscriptionListener = subscription.subscribe({
@@ -46,6 +46,28 @@ const App: React.FC = () => {
       subscriptionListener.unsubscribe();
     }
   }, []);
+
+  React.useEffect(() => {
+    let subscriptionListener!: ZenObservable.Subscription;
+    const subscription = API.graphql(graphqlOperation(onDeleteNote));
+    if(subscription instanceof Observable) {
+      subscriptionListener = subscription.subscribe({
+        next: noteData => {
+          const deletedNote = noteData.value.data.onDeleteNote;
+          console.log("deletedNote: ", deletedNote);
+          setNotes(prevNotes => {
+            if(prevNotes.findIndex(note => note.id === deletedNote.id) > -1) {
+              return [...prevNotes.filter(note => note.id !== deletedNote.id)];
+            }
+            return prevNotes;
+          })
+        }
+      });
+    }
+    return () => {
+      subscriptionListener.unsubscribe();
+    }
+  });
 
   const getNotes = async () => {
     const result: any = await API.graphql(graphqlOperation(listNotes));
