@@ -32,6 +32,11 @@ const App: React.FC = () => {
 
   const handleAddNote = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+
+    if(!note) {
+      return;
+    }
+
     const input = { note };
     const data = await mutation<CreateNoteMutation, { input: CreateNoteInput }>(createNote, { input });
     if(data && data.createNote) {
