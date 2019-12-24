@@ -15,14 +15,12 @@ interface Note {
 
 const App: React.FC = () => {
 
-  const [note, setNote] = React.useState<string>("");
+  const [note, setNote] = React.useState<string>();
   const [notes, setNotes] = React.useState<Note[]>([]);
-  const [editNoteId, setEditNoteId] = React.useState<string>();
+  const [id, setId] = React.useState<string>();
 
   React.useEffect(() => {
-    (async () => {
-      await getNotes();
-    })();
+    getNotes();
   }, []);
 
   React.useEffect(() => {
@@ -126,20 +124,20 @@ const App: React.FC = () => {
       const deletedNoteId = data.deleteNote.id;
       setNotes([...notes.filter(note => note.id !== deletedNoteId)]);
 
-      if (deletedNoteId === editNoteId) {
-        setEditNoteId("");
+      if (deletedNoteId === id) {
+        setId("");
         setNote("");
       }
     }
   }
 
   const handleEditNoteMode = async (editNote: Note) => {
-    if(editNoteId) {
-      setEditNoteId("");
+    if(id) {
+      setId("");
       setNote("");
     } else {
       console.log(editNote.id);
-      setEditNoteId(editNote.id);
+      setId(editNote.id);
       setNote(notes.filter(note => note.id === editNote.id)[0].note);
     }
   }
@@ -147,7 +145,7 @@ const App: React.FC = () => {
   const handleUpdateNote = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const input: UpdateNoteInput = { id: editNoteId!, note };
+    const input: UpdateNoteInput = { id: id!, note };
     const data = await mutation<UpdateNoteMutation, { input: UpdateNoteInput }>(updateNote, { input });
     if(data && data.updateNote) {
       const updatedNote = data.updateNote;
@@ -158,7 +156,7 @@ const App: React.FC = () => {
         ...notes.slice(index + 1)
       ]);
       setNote("");
-      setEditNoteId("");
+      setId("");
     }
   }
 
@@ -168,7 +166,7 @@ const App: React.FC = () => {
       <h1 className="code f2-l">Amplify Notetaker</h1>
       <form
         className="mb3"
-        onSubmit={editNoteId ? handleUpdateNote : handleAddNote}
+        onSubmit={id ? handleUpdateNote : handleAddNote}
         >
         <input
           type="text"
@@ -182,7 +180,7 @@ const App: React.FC = () => {
           type="submit"
           style={{ cursor: "pointer"}}
         >
-          {editNoteId ? "Update Note" : "Add Note"}
+          {id ? "Update Note" : "Add Note"}
         </button>
         <div className="flex flex-column items-center justify-center">
           {
