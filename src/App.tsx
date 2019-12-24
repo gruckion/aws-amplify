@@ -1,7 +1,7 @@
 import React from 'react';
 import { withAuthenticator } from "aws-amplify-react";
 import { API, graphqlOperation } from "aws-amplify";
-import { createNote, deleteNote } from './graphql/mutations';
+import { createNote, deleteNote, updateNote } from './graphql/mutations';
 import { listNotes } from './graphql/queries';
 
 interface Note {
@@ -11,8 +11,9 @@ interface Note {
 
 const App: React.FC = () => {
 
-  const [note, setNote] = React.useState<string>();
+  const [note, setNote] = React.useState<string>("");
   const [notes, setNotes] = React.useState<Note[]>([]);
+  const [editNoteId, setEditNoteId] = React.useState<string>();
 
   React.useEffect(() => {
     (async () => {
@@ -42,13 +43,44 @@ const App: React.FC = () => {
     setNotes([...notes.filter(note => note.id !== deletedNoteId)]);
   }
 
+  const handleEditNoteMode = async (editNote: Note) => {
+    if(editNoteId) {
+      setEditNoteId("");
+      setNote("");
+    } else {
+      console.log(editNote.id);
+      setEditNoteId(editNote.id);
+      setNote(notes.filter(note => note.id === editNote.id)[0].note);
+    }
+  }
+
+  const handleUpdateNote = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const input = { id: editNoteId, note };
+    const result = await API.graphql(graphqlOperation(updateNote, { input }));
+
+    const updatedNote = result.data.updateNote as Note;
+
+    const index = notes.findIndex(note => note.id === updatedNote.id);
+
+
+    setNotes([
+      ...notes.slice(0, index),
+      updatedNote,
+      ...notes.slice(index + 1)
+    ]);
+    setNote("");
+    setEditNoteId("");
+  }
+
 
   return (
     <div className="flex flex-column items-center justify-center pa3 bg-washed-red">
       <h1 className="code f2-l">Amplify Notetaker</h1>
       <form
         className="mb3"
-        onSubmit={handleAddNote}
+        onSubmit={editNoteId ? handleUpdateNote : handleAddNote}
       >
         <input
           type="text"
@@ -61,16 +93,19 @@ const App: React.FC = () => {
           className="pa2 f4"
           type="submit"
         >
-          Add Note
+          {editNoteId ? "Update Note" : "Add Note"}
         </button>
-        <div className="flex items-center justify-center">
+        <div className="flex flex-column items-center justify-center">
           {
-            notes && notes.map(item  => (
+            notes && notes.map(item => (
               <div
                 key={item.id}
                 className="flex items-center"
               >
-                <li className="list pa1 f3">
+                <li
+                  className="list pa1 f3"
+                  onClick={() => handleEditNoteMode(item)}
+                >
                   {item.note}
                 </li>
                 <button
