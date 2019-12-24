@@ -3,7 +3,7 @@ import { withAuthenticator } from "aws-amplify-react";
 import { API, graphqlOperation } from "aws-amplify";
 import { createNote, deleteNote, updateNote } from './graphql/mutations';
 import { listNotes } from './graphql/queries';
-import { mutation, useSubscription } from './graphql/hooks/useQuery';
+import { mutation } from './graphql/hooks/useQuery';
 import { CreateNoteInput, CreateNoteMutation, DeleteNoteMutation, DeleteNoteInput, UpdateNoteMutation, UpdateNoteInput } from './API';
 import { onCreateNote } from './graphql/subscriptions';
 import Observable from 'zen-observable';
@@ -27,7 +27,6 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     let subscriptionListener!:  ZenObservable.Subscription;
-
     const subscription = API.graphql(graphqlOperation(onCreateNote));
     if(subscription instanceof Observable) {
       subscriptionListener = subscription.subscribe({

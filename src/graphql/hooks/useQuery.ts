@@ -121,3 +121,52 @@ export const useSubscription = <
 
   return [item];
 };
+
+export const useSubscriptionByItself = <
+  ItemType extends { id: string },
+  VariablesType extends {} = {}
+>({
+  config,
+  itemData,
+}: {
+  config?: ConfigType<VariablesType>;
+  itemData?: ItemType;
+} = {}) => {
+  const [item, update] = React.useState<ItemType | undefined>(itemData);
+
+  React.useEffect(() => {
+    let unsubscribe;
+    if (config) {
+      const { query, key, variables } = config;
+      const subscription = API.graphql(graphqlOperation(query, variables));
+      if (subscription instanceof Observable) {
+        const sub = subscription.subscribe({
+          next: payload => {
+            console.log("payload: ", payload);
+            try {
+              const {
+                value: {
+                  data: { [key]: item },
+                },
+              }: {
+                value: { data: { [key: string]: ItemType } };
+              } = payload;
+
+              update(item);
+            } catch (error) {
+              console.error(
+                `${error.message} - Check the key property: the current value is ${key}`
+              );
+            }
+          },
+        });
+        unsubscribe = () => {
+          sub.unsubscribe();
+        };
+      }
+    }
+    return unsubscribe;
+  }, [config]);
+
+  return [item];
+};
