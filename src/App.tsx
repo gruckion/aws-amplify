@@ -24,10 +24,10 @@ const App: React.FC = () => {
   }, []);
 
   React.useEffect(() => {
-    let subscriptionListener!: ZenObservable.Subscription;
+    let createNoteSubscriptionListener!: ZenObservable.Subscription;
     const subscription = API.graphql(graphqlOperation(onCreateNote));
     if(subscription instanceof Observable) {
-      subscriptionListener = subscription.subscribe({
+      createNoteSubscriptionListener = subscription.subscribe({
         next: noteData => {
           const newNote = noteData.value.data.onCreateNote;
           setNotes(prevNotes => {
@@ -41,15 +41,15 @@ const App: React.FC = () => {
       });
     }
     return () => {
-      subscriptionListener.unsubscribe();
+      createNoteSubscriptionListener.unsubscribe();
     }
   }, []);
 
   React.useEffect(() => {
-    let subscriptionListener!: ZenObservable.Subscription;
+    let deleteNoteSubscriptionListener!: ZenObservable.Subscription;
     const subscription = API.graphql(graphqlOperation(onDeleteNote));
     if(subscription instanceof Observable) {
-      subscriptionListener = subscription.subscribe({
+      deleteNoteSubscriptionListener = subscription.subscribe({
         next: noteData => {
           const deletedNote = noteData.value.data.onDeleteNote;
           setNotes(prevNotes => {
@@ -62,15 +62,15 @@ const App: React.FC = () => {
       });
     }
     return () => {
-      subscriptionListener.unsubscribe();
+      deleteNoteSubscriptionListener.unsubscribe();
     }
   });
 
   React.useEffect(() => {
-    let subscriptionListener!: ZenObservable.Subscription;
+    let updateNoteSubscriptionListener!: ZenObservable.Subscription;
     const subscription = API.graphql(graphqlOperation(onUpdateNote));
     if(subscription instanceof Observable) {
-      subscriptionListener = subscription.subscribe({
+      updateNoteSubscriptionListener = subscription.subscribe({
         next: noteData => {
           const updatedNote = noteData.value.data.onUpdateNote;
           console.log("updatedNote: ", updatedNote);
@@ -90,7 +90,7 @@ const App: React.FC = () => {
       });
     }
     return () => {
-      subscriptionListener.unsubscribe();
+      updateNoteSubscriptionListener.unsubscribe();
     }
   });
 
