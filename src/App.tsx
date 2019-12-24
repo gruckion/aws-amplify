@@ -17,10 +17,14 @@ const App: React.FC = () => {
 
   React.useEffect(() => {
     (async () => {
-      const result = await API.graphql(graphqlOperation(listNotes));
-      setNotes(result.data.listNotes.items);
+      await getNotes();
     })();
   }, []);
+
+  const getNotes = async () => {
+    const result: any = await API.graphql(graphqlOperation(listNotes));
+    setNotes(result.data.listNotes.items);
+  }
 
   const handleChangeNote = (event: React.ChangeEvent<HTMLInputElement>) => setNote(event?.target?.value);
 
@@ -28,7 +32,7 @@ const App: React.FC = () => {
     event.preventDefault();
 
     const input = { note };
-    const result = await API.graphql(graphqlOperation(createNote, { input }));
+    const result: any = await API.graphql(graphqlOperation(createNote, { input }));
 
     const newNote = result.data.createNote;
     setNotes([newNote, ...notes]);
@@ -37,7 +41,7 @@ const App: React.FC = () => {
 
   const handleDeleteNote = async (noteId: string) => {
     const input = { id: noteId };
-    const result = await API.graphql(graphqlOperation(deleteNote, { input }));
+    const result: any = await API.graphql(graphqlOperation(deleteNote, { input }));
     const deletedNoteId = result.data.deleteNote.id;
 
     setNotes([...notes.filter(note => note.id !== deletedNoteId)]);
@@ -58,7 +62,7 @@ const App: React.FC = () => {
     event.preventDefault();
 
     const input = { id: editNoteId, note };
-    const result = await API.graphql(graphqlOperation(updateNote, { input }));
+    const result: any = await API.graphql(graphqlOperation(updateNote, { input }));
 
     const updatedNote = result.data.updateNote as Note;
 
