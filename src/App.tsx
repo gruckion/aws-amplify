@@ -3,6 +3,8 @@ import { withAuthenticator } from "aws-amplify-react";
 import { API, graphqlOperation } from "aws-amplify";
 import { createNote, deleteNote, updateNote } from './graphql/mutations';
 import { listNotes } from './graphql/queries';
+import { mutation } from './graphql/hooks/useQuery';
+import { CreateNoteInput, CreateNoteMutation, DeleteNoteMutation, DeleteNoteInput, UpdateNoteMutation, UpdateNoteInput } from './API';
 
 interface Note {
   id: string;
@@ -30,21 +32,22 @@ const App: React.FC = () => {
 
   const handleAddNote = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     const input = { note };
-    const result: any = await API.graphql(graphqlOperation(createNote, { input }));
-
-    const newNote = result.data.createNote;
-    setNotes([newNote, ...notes]);
-    setNote("");
+    const data = await mutation<CreateNoteMutation, { input: CreateNoteInput }>(createNote, { input });
+    if(data && data.createNote) {
+      setNotes([data.createNote, ...notes]);
+      setNote("");
+    }
   }
 
   const handleDeleteNote = async (noteId: string) => {
     const input = { id: noteId };
-    const result: any = await API.graphql(graphqlOperation(deleteNote, { input }));
-    const deletedNoteId = result.data.deleteNote.id;
 
-    setNotes([...notes.filter(note => note.id !== deletedNoteId)]);
+    const data = await mutation<DeleteNoteMutation, { input: DeleteNoteInput }>(deleteNote, { input });
+    if(data && data.deleteNote) {
+      const deletedNoteId = data.deleteNote.id;
+      setNotes([...notes.filter(note => note.id !== deletedNoteId)]);
+    }
   }
 
   const handleEditNoteMode = async (editNote: Note) => {
@@ -61,21 +64,19 @@ const App: React.FC = () => {
   const handleUpdateNote = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const input = { id: editNoteId, note };
-    const result: any = await API.graphql(graphqlOperation(updateNote, { input }));
-
-    const updatedNote = result.data.updateNote as Note;
-
-    const index = notes.findIndex(note => note.id === updatedNote.id);
-
-
-    setNotes([
-      ...notes.slice(0, index),
-      updatedNote,
-      ...notes.slice(index + 1)
-    ]);
-    setNote("");
-    setEditNoteId("");
+    const input: UpdateNoteInput = { id: editNoteId!, note };
+    const data = await mutation<UpdateNoteMutation, { input: UpdateNoteInput }>(updateNote, { input });
+    if(data && data.updateNote) {
+      const updatedNote = data.updateNote;
+      const index = notes.findIndex(note => note.id === updatedNote.id);
+      setNotes([
+        ...notes.slice(0, index),
+        updatedNote,
+        ...notes.slice(index + 1)
+      ]);
+      setNote("");
+      setEditNoteId("");
+    }
   }
 
 
