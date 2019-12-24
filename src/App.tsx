@@ -76,6 +76,8 @@ const App: React.FC = () => {
     if(data && data.deleteNote) {
       const deletedNoteId = data.deleteNote.id;
       setNotes([...notes.filter(note => note.id !== deletedNoteId)]);
+      setEditNoteId("");
+      setNote("");
     }
   }
 
