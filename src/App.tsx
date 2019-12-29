@@ -15,19 +15,22 @@ interface Note {
 
 const App: React.FC = () => {
 
-  const [note, setNote] = React.useState<string>();
+  const [note, setNote] = React.useState<string>("");
   const [notes, setNotes] = React.useState<Note[]>([]);
   const [id, setId] = React.useState<string>();
 
   React.useEffect(() => {
-    getNotes();
+    (async () => {
+      await getNotes();
+    })();
   }, []);
 
   React.useEffect(() => {
-    let createNoteSubscriptionListener!: ZenObservable.Subscription;
+    let subscriptionListener!: ZenObservable.Subscription;
     const subscription = API.graphql(graphqlOperation(onCreateNote));
+    console.log("subscription: ", subscription )
     if(subscription instanceof Observable) {
-      createNoteSubscriptionListener = subscription.subscribe({
+      subscriptionListener = subscription.subscribe({
         next: noteData => {
           const newNote = noteData.value.data.onCreateNote;
           setNotes(prevNotes => {
@@ -41,15 +44,15 @@ const App: React.FC = () => {
       });
     }
     return () => {
-      createNoteSubscriptionListener.unsubscribe();
+      subscriptionListener && subscriptionListener.unsubscribe();
     }
   }, []);
 
   React.useEffect(() => {
-    let deleteNoteSubscriptionListener!: ZenObservable.Subscription;
+    let subscriptionListener!: ZenObservable.Subscription;
     const subscription = API.graphql(graphqlOperation(onDeleteNote));
     if(subscription instanceof Observable) {
-      deleteNoteSubscriptionListener = subscription.subscribe({
+      subscriptionListener = subscription.subscribe({
         next: noteData => {
           const deletedNote = noteData.value.data.onDeleteNote;
           setNotes(prevNotes => {
@@ -62,15 +65,15 @@ const App: React.FC = () => {
       });
     }
     return () => {
-      deleteNoteSubscriptionListener.unsubscribe();
+      subscriptionListener.unsubscribe();
     }
   });
 
   React.useEffect(() => {
-    let updateNoteSubscriptionListener!: ZenObservable.Subscription;
+    let subscriptionListener!: ZenObservable.Subscription;
     const subscription = API.graphql(graphqlOperation(onUpdateNote));
     if(subscription instanceof Observable) {
-      updateNoteSubscriptionListener = subscription.subscribe({
+      subscriptionListener = subscription.subscribe({
         next: noteData => {
           const updatedNote = noteData.value.data.onUpdateNote;
           console.log("updatedNote: ", updatedNote);
@@ -90,7 +93,7 @@ const App: React.FC = () => {
       });
     }
     return () => {
-      updateNoteSubscriptionListener.unsubscribe();
+      subscriptionListener.unsubscribe();
     }
   });
 

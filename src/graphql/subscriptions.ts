@@ -1,27 +1,24 @@
 // tslint:disable
 // this is an auto generated file. This will be overwritten
 
-export const onCreateNote = `subscription OnCreateNote($owner: String!) {
-  onCreateNote(owner: $owner) {
+export const onCreateNote = `subscription OnCreateNote {
+  onCreateNote {
     id
     note
-    owner
   }
 }
 `;
-export const onUpdateNote = `subscription OnUpdateNote($owner: String!) {
-  onUpdateNote(owner: $owner) {
+export const onUpdateNote = `subscription OnUpdateNote {
+  onUpdateNote {
     id
     note
-    owner
   }
 }
 `;
-export const onDeleteNote = `subscription OnDeleteNote($owner: String!) {
-  onDeleteNote(owner: $owner) {
+export const onDeleteNote = `subscription OnDeleteNote {
+  onDeleteNote {
     id
     note
-    owner
   }
 }
 `;
